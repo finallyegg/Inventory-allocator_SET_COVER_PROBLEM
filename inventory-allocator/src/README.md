@@ -48,6 +48,31 @@ Algorithm:
 
 &NewLine;
 
+## Difference of two method in practice:
+
+#### Test Cases:
+
+- ##### order: `= {"apple": 10, "banana": 10}`
+- ##### warehouses `= [w1:{'apple': 1, 'banana': 2}, w2:{'apple': 5, 'banana': 6}, w3:{'apple': 5, 'banana': 6}]`
+
+&NewLine;
+
+##### Result for Method 1 (Set Cover):
+
+###### ` [{'w2': {'apple': 5, 'banana': 6}}, {'w3': {'apple': 5, 'banana': 4}}]`
+
+##### Reason: ** Assume cost is \***independent**\* on item quantity ** cost for w1: 1, cost for w2: 2, cost for w3: 3, select w2 and w3 will achieve minium cost of 5
+
+&NewLine;
+
+##### Result for Method 2 (Simple):
+
+###### ` [{'a': {'apple': 1, 'banana': 2}}, {'b': {'apple': 5, 'banana': 6}}, {'c': {'apple': 4, 'banana': 2}}]`
+
+##### Reason: ** Assume cost is \***dependent**\* on item quantity **, as long as there is no such warehouse can cover all order, we select warehouse if there is a match
+
+&NewLine;
+
 ---
 
 ### Run test
