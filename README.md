@@ -1,53 +1,100 @@
-# Check README in src folder to get an overview and use case of my solution
+# Inventory allocator
 
-## Problem
+###### By: Zeping He
 
-The problem is compute the best way an order can be shipped (called shipments) given inventory across a set of warehouses (called inventory distribution).
+&NewLine;
 
-Your task is to implement a function that will to produce the cheapest shipment.
+##### Due to the vague definition of the cost function, Cost can either be the fixed shipping cost from each location (that is, shipping cost is independent on item quantity), or the cost is based on item quantity (shipping cost from a warehouse depends on the item quantities).
 
-The first input will be an order: a map of items that are being ordered and how many of them are ordered. For example an order of apples, bananas and oranges of 5 units each will be
+&NewLine;
+&NewLine;
 
-`{ apple: 5, banana: 5, orange: 5 }`
+##### Thus, I proposed two methods for this question
 
-The second input will be a list of object with warehouse name and inventory amounts (inventory distribution) for these items. For example, the inventory across two warehouses called owd and dm for apples, bananas and oranges could look like
+- Method One: Assume shipping cost is independent, assign index of warehouse array as cost value. Then try to minimize the output cost. (Typical set cover problem, which is **NP-hard**)
+- Method Two: Assume shipping cost is dependent on item quantity, always select warehouse with less shipping cost unless there exists a warehouse can cover all item in an order
 
-`[ { name: owd, inventory: { apple: 5, orange: 10 } }, { name: dm:, inventory: { banana: 5, orange: 10 } } ]`
+&NewLine;
 
-You can assume that the list of warehouses is pre-sorted based on cost. The first warehouse will be less expensive to ship from than the second warehouse.
+---
 
-You can use any language of your choice to write the solution (internally we use Typescript/Javascript, Python, and some Java). Please write unit tests with your code, a few are mentioned below, but these are not comprehensive. Fork the repository and put your solution inside of the src directory and include a way to run your tests!
+## Method One `findCheapest_Complex` (Set Cover Problem)
 
-## Examples
+- Use index+1 as a cost value for WareHouse
+  -- ex: given Warehouse Array:`[{ name: owd, inventory: { apple: 5 } }, { name: dm, inventory: { apple: 5 }}] `
+  -- Then: `cost[owd] = 1, cost[dm] = 2`
+- Compute all possible combinations (using Python build function `itertools.combination` to create combination list) and then find the min cost.
 
-### Order can be shipped using one warehouse
+Algorithm:
 
-Input: `{ apple: 1 }, [{ name: owd, inventory: { apple: 1 } }]`  
-Output: `[{ owd: { apple: 1 } }]`
+- Assign cost index for each Warehouse
+- Compute all possible Warehouse combinations
+- Find a specific combination that cover all items in order and achieve minimum cost
+- Pass combination list to `findCheapest_Simple` get final result
 
-### Order can be shipped using multiple warehouses
+&NewLine;
 
-Input: `{ apple: 10 }, [{ name: owd, inventory: { apple: 5 } }, { name: dm, inventory: { apple: 5 }}]`  
-Output: `[{ dm: { apple: 5 }}, { owd: { apple: 5 } }]`
+## Method Two: `findCheapest_Simple` (Simple One)
 
-### Order cannot be shipped because there is not enough inventory
+###### This is a much simple one :
 
-Input: `{ apple: 1 }, [{ name: owd, inventory: { apple: 0 } }]`  
-Output: `[]`
+&NewLine;
 
-Input: `{ apple: 2 }, [{ name: owd, inventory: { apple: 1 } }]`  
-Output: `[]`
+Algorithm:
 
-## FAQs
+- Iterate entire warehouse list to see if there is a single warehouse can cover full list of order
+  -- if yes, return that warehouse
+- iterate warehouse list and select every single item that have a match in order
 
-**If an order can be completely shipped from one warehouse or shipped from multiple warehouses, which option is cheaper?**
-We can assume that shipping out of one warehouse is cheaper than shipping from multiple warehouses.
+&NewLine;
 
-## What are we looking for
+## Difference of two method in practice:
 
-We'll evaluate your code via the following guidelines in no particular order:
+#### Test Cases:
 
-1. **Readability**: naming, spacing, consistency
-2. **Correctness**: is the solution correct and does it solve the problem
-3. **Test Code Quality**: Is the test code comperehensive and covering all cases.
-4. **Tool/Language mastery**: is the code using up to date syntax and techniques.
+- ##### order: `= {"apple": 10, "banana": 10}`
+- ##### warehouses `= [w1:{'apple': 1, 'banana': 2}, w2:{'apple': 5, 'banana': 6}, w3:{'apple': 5, 'banana': 6}]`
+
+&NewLine;
+
+##### Result for Method 1 (Set Cover):
+
+###### ` [{'w2': {'apple': 5, 'banana': 6}}, {'w3': {'apple': 5, 'banana': 4}}]`
+
+##### Reason: ** Assume cost is \***independent**\* on item quantity ** cost for w1: 1, cost for w2: 2, cost for w3: 3, select w2 and w3 will achieve minium cost of 5
+
+&NewLine;
+
+##### Result for Method 2 (Simple):
+
+###### ` [{'a': {'apple': 1, 'banana': 2}}, {'b': {'apple': 5, 'banana': 6}}, {'c': {'apple': 4, 'banana': 2}}]`
+
+##### Reason: ** Assume cost is \***dependent**\* on item quantity **, as long as there is no such warehouse can cover all order, we select warehouse if there is a match
+
+&NewLine;
+
+---
+
+### Run test
+
+\*require python3
+
+You can view and modifiy test case in `test.py`
+
+```sh
+$ cd ./src
+$ python3 test.py
+```
+
+&NewLine;
+
+---
+
+### Input, Output and `Warehouse` Class
+
+| input        | Where               | type                                                                               |
+| ------------ | ------------------- | ---------------------------------------------------------------------------------- |
+| Warehouse    | src/Warehouse.py    | a python class contains **name** :`str`, **inventory** :`dict`, and **cost**:`int` |
+| order_origin | findCheapest_simple | a python `dict`                                                                    |
+| supply       | findCheapest_simple | list of `Warehouse` objects                                                        |
+| suppliers    | combineSuppliers    | list of `Warehouse` objects                                                        |
