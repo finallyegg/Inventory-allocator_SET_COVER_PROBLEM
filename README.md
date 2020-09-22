@@ -1,5 +1,7 @@
 # Inventory allocator
 
+### Original Question:
+https://github.com/deliverr/recruiting-exercises/blob/master/inventory-allocator/README.md
 ###### By: Zeping He
 
 &NewLine;
